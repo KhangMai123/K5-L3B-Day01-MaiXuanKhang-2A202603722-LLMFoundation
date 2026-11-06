@@ -1,0 +1,203 @@
+{
+ "seed": 3491,
+ "predictions": {
+  "ml_f1": {
+   "text": "F1 khoảng 0.90; precision cao hơn recall vì spam là lớp ít và ngưỡng 0.5 khiến mô hình thận trọng khi chặn tin.",
+   "time": "14:54:23"
+  },
+  "ml_lr": {
+   "text": "lr=0.001 giảm loss chậm; lr=50 có thể làm loss tăng vọt lúc đầu rồi giảm hoặc dao động, chưa chắc phân kỳ.",
+   "time": "14:54:30"
+  },
+  "dl_curve": {
+   "text": "Val loss giảm rồi tăng do overfit; MLP có thể nhỉnh hơn LogReg nhưng không bảo đảm cải thiện lớn trên BoW.",
+   "time": "14:55:08"
+  },
+  "dl_relu": {
+   "text": "Bỏ ReLU làm hai lớp Linear tương đương một phép biến đổi affine; F1 có thể gần MLP nhưng cách tối ưu khác nên không nhất thiết trùng LogReg.",
+   "time": "14:55:22"
+  },
+  "emb_search": {
+   "text": "Phần lớn hàng xóm sẽ là spam vì selected, complimentary holiday và claim diễn tả lời mời nhận thưởng.",
+   "time": "14:58:11"
+  },
+  "emb_tricky": {
+   "text": "Embedding+LogReg có thể đúng nhiều hơn BoW do nhận ra từ đồng nghĩa và ngữ cảnh của tin nhắn.",
+   "time": "14:59:32"
+  },
+  "llm_models": {
+   "text": "Chưa có kết quả API; dự đoán LLM phân loại khá tốt nhưng chưa chắc thắng embedding trên SUB 40 tin. Nếu hai biến model cùng trỏ DeepSeek Flash thì không thể so model lớn và nhỏ.",
+   "time": "14:59:39"
+  },
+  "llm_fewshot": {
+   "text": "Few-shot có thể giúp thống nhất tiêu chí nhãn nhưng chưa chắc tăng F1; chi phí input tăng theo số token của bốn ví dụ.",
+   "time": "15:01:00"
+  },
+  "tradeoff": {
+   "text": "BoW+LogReg có thể nằm trên Pareto nhờ nhanh; BoW+MLP có thể cải thiện F1. LLM API có khả năng vượt p95 50ms nhưng cần đo.",
+   "time": "15:01:37"
+  },
+  "hard_eval": {
+   "text": "Accuracy trên bộ khó có thể giảm còn khoảng 50–80%; BoW khó với né từ khóa và spam giọng tự nhiên; LLM có thể khó với injection và ngữ cảnh mập mờ.",
+   "time": "15:01:39"
+  }
+ },
+ "checks": {
+  "1.1 vectorize": true,
+  "1.2 sigmoid / predict_proba": true,
+  "1.3 train_logreg": true,
+  "1.4 metrics": true,
+  "2.1 build_mlp": true,
+  "2.2 train_mlp": true,
+  "3.1–3.2 cosine / top_k_similar": true,
+  "3.3 knn_predict": true,
+  "4.2–4.3 prompt / parse_label": true,
+  "4.1 + 4.4 call_openai / llm_classify_batch": true,
+  "tính tay: baseline_accuracy": true,
+  "tính tay: sigmoid_0": true,
+  "tính tay: f1_example": true,
+  "tính tay: cosine_example": true,
+  "tính tay: llm_cost_per_day": true
+ },
+ "experiments": [
+  {
+   "key": "ml_f1",
+   "time": "14:54:23"
+  },
+  {
+   "key": "ml_lr",
+   "time": "14:54:30"
+  },
+  {
+   "key": "dl_curve",
+   "time": "14:55:08"
+  },
+  {
+   "key": "dl_relu",
+   "time": "14:55:22"
+  },
+  {
+   "key": "emb_search",
+   "time": "14:58:11"
+  },
+  {
+   "key": "emb_tricky",
+   "time": "14:59:32"
+  },
+  {
+   "key": "llm_models",
+   "time": "14:59:39"
+  },
+  {
+   "key": "llm_fewshot",
+   "time": "15:01:00"
+  },
+  {
+   "key": "tradeoff",
+   "time": "15:01:38"
+  },
+  {
+   "key": "hard_eval",
+   "time": "15:01:39"
+  }
+ ],
+ "challenge": 5,
+ "results": {
+  "1. BoW + LogReg (tự code)": {
+   "accuracy": 0.9793548387096774,
+   "precision": 1.0,
+   "recall": 0.84,
+   "f1": 0.9130434782608695,
+   "f1_SUB": 0.8888888888888888,
+   "train_s": 6.467444460999957,
+   "msg_per_s": 29782.77329038021,
+   "p50_ms": 0.0745545000029324,
+   "p95_ms": 0.23900185001934643,
+   "usd_per_1k": 0.0
+  },
+  "2. BoW + MLP (deep learning)": {
+   "accuracy": 0.9870967741935484,
+   "precision": 1.0,
+   "recall": 0.9,
+   "f1": 0.9473684210526315,
+   "f1_SUB": 0.9743589743589743,
+   "train_s": 13.52591533399999,
+   "msg_per_s": 9774.433197959797,
+   "p50_ms": 0.24931250001714034,
+   "p95_ms": 4.4466485000185685,
+   "usd_per_1k": 0.0
+  },
+  "3a. Encoder (MiniLM) + kNN": {
+   "accuracy": 0.9767741935483871,
+   "precision": 0.8727272727272727,
+   "recall": 0.96,
+   "f1": 0.9142857142857143,
+   "f1_SUB": 0.9743589743589743,
+   "train_s": 84.929899793,
+   "msg_per_s": 24.95541251624808,
+   "p50_ms": 63.98256799997171,
+   "p95_ms": 120.44089005000842,
+   "usd_per_1k": 0.0
+  },
+  "3b. Encoder (MiniLM) + LogReg": {
+   "accuracy": 0.9858064516129033,
+   "precision": 0.968421052631579,
+   "recall": 0.92,
+   "f1": 0.9435897435897436,
+   "f1_SUB": 0.9743589743589743,
+   "train_s": 85.39956309400009,
+   "msg_per_s": 36.69726815002588,
+   "p50_ms": 23.76692450002338,
+   "p95_ms": 34.30551529999093,
+   "usd_per_1k": 0.0
+  },
+  "3c. Encoder (MiniLM) + MLP head": {
+   "accuracy": 0.9883870967741936,
+   "precision": 0.989247311827957,
+   "recall": 0.92,
+   "f1": 0.9533678756476683,
+   "f1_SUB": 0.9743589743589743,
+   "train_s": 86.13464460299997,
+   "msg_per_s": 35.564459204954844,
+   "p50_ms": 25.70619900006932,
+   "p95_ms": 31.431517400073965,
+   "usd_per_1k": 0.0
+  },
+  "4a. LLM nhỏ zero-shot": {
+   "accuracy": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "f1_SUB": 1.0,
+   "train_s": 0.0,
+   "msg_per_s": 1.0581355152997465,
+   "p50_ms": 929.4757490000052,
+   "p95_ms": 1155.969234450049,
+   "usd_per_1k": 0.02343
+  },
+  "4b. LLM lớn zero-shot": {
+   "accuracy": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "f1_SUB": 1.0,
+   "train_s": 0.0,
+   "msg_per_s": 0.9879124504852648,
+   "p50_ms": 1010.347665500035,
+   "p95_ms": 1174.744570799953,
+   "usd_per_1k": 0.02343
+  },
+  "4c. LLM nhỏ few-shot": {
+   "accuracy": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "f1_SUB": 1.0,
+   "train_s": 0.0,
+   "msg_per_s": 1.1137879744640504,
+   "p50_ms": 952.0764750000126,
+   "p95_ms": 1191.8163794000407,
+   "usd_per_1k": 0.05902999999999998
+  }
+ }
+}
